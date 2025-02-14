@@ -17,9 +17,9 @@
           zsh
           basedpyright
           (python313FreeThreading.withPackages (p: [
-            p.jupyter
             p.pandas
-            p.pynvim
+            p.matplotlib
+            p.seaborn
           ]))
         ];
         shellHook = ''
