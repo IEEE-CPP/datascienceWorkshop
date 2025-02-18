@@ -8,7 +8,7 @@ from pandas import DataFrame
 @dataclass
 class NumericConversionData:
     columnName: str
-    conversionMap: dict
+    conversionMap: dict[str, int]
 
 
 def convertColToNumeric(
@@ -16,7 +16,7 @@ def convertColToNumeric(
 ) -> DataFrame:
     convertedData = data.copy()
     convertedData[columnData.columnName] = data[columnData.columnName].map(
-        columnData.conversionMap
+        columnData.conversionMap  # type: ignore
     )
     return convertedData
 
