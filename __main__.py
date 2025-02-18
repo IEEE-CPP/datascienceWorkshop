@@ -28,3 +28,4 @@ if __name__ == "__main__":
 
     print(processedData)
     print(data)
+    explore(data)
