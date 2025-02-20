@@ -1,3 +1,8 @@
+# %% Imports and libraries [markdown]
+"""
+## Imports and library functions
+"""
+# %%
 from dataclasses import dataclass
 from functools import reduce
 
@@ -11,21 +16,36 @@ from lib.explore import explore
 from lib.featureEngineering import addFamilyCountData
 from lib.numericConversion import embarkedConverter, sexConverter
 
+# %% [markdown]
+"""
+### Compose
+a function that enables functional composition
+compose :: function, function, ... -> function
 
+compose(f, g, h, i)(x) is equivalent to i(h(g(f(x))))
+"""
+
+
+# %%
 def compose(*funcs):
     return reduce(lambda f, g: lambda x: g(f(x)), funcs, lambda x: x)
 
 
-if __name__ == "__main__":
-    data: DataFrame = pd.read_csv(
-        "https://raw.githubusercontent.com/datasciencedojo/datasets/refs/heads/master/titanic.csv"
-    )
+# %% data preprocessing [markdown]
+"""
+# Data Preprocessing
+"""
 
-    cleanData = compose(cleanAge, cleanFare, cleanEmbarked, dropIrrelevant)
-    convertDataToNumeric = compose(sexConverter, embarkedConverter)
+# %%
+data: DataFrame = pd.read_csv(
+    "https://raw.githubusercontent.com/datasciencedojo/datasets/refs/heads/master/titanic.csv"
+)
 
-    processedData = compose(cleanData, convertDataToNumeric, addFamilyCountData)(data)
+cleanData = compose(cleanAge, cleanFare, cleanEmbarked, dropIrrelevant)
+convertDataToNumeric = compose(sexConverter, embarkedConverter)
 
-    print(processedData)
-    print(data)
-    explore(data)
+processedData = compose(cleanData, convertDataToNumeric, addFamilyCountData)(data)
+
+print(processedData)
+print(data)
+explore(data)
