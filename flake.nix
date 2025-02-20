@@ -17,6 +17,9 @@
           zsh
           basedpyright
           (python313FreeThreading.withPackages (p: [
+            p.jupyter
+            p.jupytext
+            p.ipython
             p.pandas
             p.matplotlib
             p.seaborn
