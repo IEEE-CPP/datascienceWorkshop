@@ -13,13 +13,17 @@ import seaborn as sns
 from pandas import DataFrame
 from ydata_profiling import ProfileReport
 
+from lib.chartSpecificData import survivalFrame
 from lib.clean import cleanAge, cleanEmbarked, cleanFare, dropIrrelevant
 from lib.featureEngineering import addFamilyCountData
-from lib.numericConversion import embarkedConverter, sexConverter
+from lib.numericConversion import (SexConversion, embarkedConverter,
+                                   sexConverter)
 
 # %% [markdown]
 """
 ### matplotlib options
+
+This is just because my local setup is weird
 """
 
 # %%
@@ -110,7 +114,8 @@ Here we are just getting rid of null values and dropping irrelevant data that we
 cleanData = compose(cleanAge, cleanFare, cleanEmbarked, dropIrrelevant)
 convertDataToNumeric = compose(sexConverter, embarkedConverter)
 
-processedData = compose(cleanData, convertDataToNumeric, addFamilyCountData)(data)
+processedData = compose(cleanData, convertDataToNumeric)(data)
+processedDataRows = len(processedData)
 
 # %% [markdown]
 """
@@ -133,3 +138,20 @@ processedDataCorrMatrix = processedData.corr().round(3)
 sns.heatmap(processedDataCorrMatrix, annot=True, cmap="coolwarm")
 plt.title("Correlation Matrix")
 plt.show()
+
+# %% [markdown]
+"""
+### Survival by Sex
+"""
+
+
+# %%
+
+
+survivalFrame("Sex", processedData).rename(columns={1: "Female", 0: "Male"})
+# sexSurvival = sns.barplot(x="Sex", y="Survived", data=processedData)
+# sexSurvival.set_xticks(range(2))
+# sexSurvival.set_xticklabels(["Male", "Female"])
+# sexSurvival.set_yticks()
+
+# %%
