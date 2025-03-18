@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from pandas import DataFrame
+from scipy.stats import pearsonr
 from ydata_profiling import ProfileReport
 
 from lib.chartSpecificData import survivalFrame
@@ -147,11 +148,91 @@ plt.show()
 
 # %%
 
+survivalFrame("Sex", processedData).rename(columns={1: "Female", 0: "Male"}).plot.bar()
+plt.show()
 
-survivalFrame("Sex", processedData).rename(columns={1: "Female", 0: "Male"})
-# sexSurvival = sns.barplot(x="Sex", y="Survived", data=processedData)
-# sexSurvival.set_xticks(range(2))
-# sexSurvival.set_xticklabels(["Male", "Female"])
-# sexSurvival.set_yticks()
+# %% [markdown]
+"""
+Survival by class
+"""
+
+# %%
+pclass = survivalFrame("Pclass", processedData).sort_index(axis=1)
+pclass.plot.bar()
+plt.show()
+
+# %% [markdown]
+"""
+Survival by age
+"""
+# %%
+survivalFrame("Age", processedData).sort_index(axis=1).transpose().plot.line()
+plt.show()
+
+# %% [markdown]
+"""
+Survival of women by age
+"""
+
+# %%
+survivalFrame("Age", processedData[processedData["Sex"] == 1]).sort_index(
+    axis=1
+).transpose().plot.line()
+plt.show()
+
+# %% [markdown]
+"""
+Survival of men by age
+"""
+
+# %%
+survivalFrame("Age", processedData[processedData["Sex"] == 0]).sort_index(
+    axis=1
+).transpose().plot.line()
+plt.show()
+
+# %% [markdown]
+"""
+Survival of children by age
+"""
+
+# %%
+survivalFrame("Age", processedData[processedData["Age"] < 18]).sort_index(
+    axis=1
+).transpose().plot.line()
+plt.show()
+
+# %%
+survivalFrame("Age", processedData[processedData["Age"] < 18]).sort_index(
+    axis=1
+).transpose().plot.bar()
+plt.show()
+
+# %% [markdown]
+"""
+Total survival of all children
+"""
+
+# %%
+survivalFrame("Age", processedData[processedData["Age"] < 18]).sort_index(
+    axis=1
+).transpose().sum().plot.bar()
+plt.show()
+
+# %%
+survivalFrame("Age", processedData[processedData["Age"] < 18]).sort_index(
+    axis=1
+).transpose().sum()
+
+# %% [markdown]
+"""
+The obvious conclusion is that being a child doesn't help your chancesa all that much
+"""
+
+# %%
+data
+
+# %%
+processedData
 
 # %%
