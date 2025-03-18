@@ -12,6 +12,10 @@ import pandas as pd
 import seaborn as sns
 from pandas import DataFrame
 from scipy.stats import pearsonr
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.tree import plot_tree
 from ydata_profiling import ProfileReport
 
 from lib.chartSpecificData import survivalFrame
@@ -235,4 +239,88 @@ data
 # %%
 processedData
 
+# %% [markdown]
+"""
+## Machine learning
+"""
+
+# %% [markdown]
+"""
+### Random Forest
+"""
+
 # %%
+X = processedData.drop(["Survived"], axis=1)
+y = processedData["Survived"]
+randomState = 42
+
+# splitting up the dataset for teesting
+X_train, X_val, y_train, y_val = train_test_split(
+    X, y, test_size=0.2, random_state=randomState
+)
+randomForest = RandomForestClassifier(n_estimators=100, random_state=randomState)
+randomForest.fit(X_train, y_train)
+
+y_pred = randomForest.predict(X_val)
+accuracy = accuracy_score(y_val, y_pred)
+print(f"Accuracy: {accuracy}")
+
+# %% [markdown]
+"""
+### Fine Tuning
+"""
+
+# %%
+paramGrid = {
+    "n_estimators": [100, 200, 300],
+    "max_features": ["auto", "sqrt", "log2"],
+    "max_depth": [4, 6, 8, 10],
+    "criterion": ["gini", "entropy"],
+}
+gridSearch = GridSearchCV(
+    estimator=randomForest, param_grid=paramGrid, cv=5, n_jobs=3, scoring="accuracy"
+)
+gridSearch.fit(X_train, y_train)
+
+bestParams = gridSearch.best_params_
+
+print(f"bestParams: {bestParams}")
+# create new model with better parameters
+randomForest2 = gridSearch.best_estimator_
+# fit the model
+randomForest2.fit(X_train, y_train)
+y_pred = randomForest2.predict(X_val)
+accuracy = accuracy_score(y_val, y_pred)
+print(f"Accuracy: {accuracy}")
+# %% [markdown]
+"""
+### visualize the model
+"""
+# %%
+tree = randomForest.estimators_[0]
+plt.figure(figsize=(20, 10))
+plot_tree(
+    tree,
+    feature_names=X.columns,
+    class_names=True,
+    filled=True,
+    fontsize=6,
+    rounded=True,
+)
+plt.show()
+
+# %%
+testPassenger = pd.DataFrame.from_dict(
+    {
+        "PassengerId": [1],
+        "Pclass": [1],
+        "Sex": [1],
+        "Age": [42],
+        "SibSp": [1],
+        "Parch": [0],
+        "Fare": [30],
+        "Embarked": [2],
+    }
+)
+testPassengerPrediction = randomForest.predict(testPassenger)
+print(testPassengerPrediction)
