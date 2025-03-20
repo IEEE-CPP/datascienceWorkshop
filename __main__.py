@@ -61,7 +61,7 @@ data: DataFrame = pd.read_csv(
 
 # %% Data Exploration [markdown]
 """
-## Data Exploration part 1
+# Data Exploration part 1
 """
 # %% [markdown]
 """
@@ -108,7 +108,7 @@ data.isnull().sum()
 # %%
 # ProfileReport(data, title="Titanic Profiling Report")
 
-# %% data Preprocessing [markdown]
+# CCXZX%% data Preprocessing [markdown]
 """
 # Data Preprocessing
 
@@ -146,92 +146,172 @@ plt.show()
 
 # %% [markdown]
 """
+### Pairplot
+this is a way of looking at a lot of graphs quickly
+"""
+# %%
+sns.pairplot(processedData, hue="Survived")
+plt.show()
+
+# %% [markdown]
+"""
 ### Survival by Sex
 """
-
+# %%
+# We don't want to relable our axes
+processedDataCategoricalSex = compose(cleanData, embarkedConverter)(data)
+sns.countplot(x="Sex", data=processedDataCategoricalSex)
+plt.show()
+# well that sucks, both sexes are the same color
 
 # %%
-
-survivalFrame("Sex", processedData).rename(columns={1: "Female", 0: "Male"}).plot.bar()
+# luckily we can fix that with hue
+sns.countplot(x="Sex", hue="Sex", data=processedDataCategoricalSex)
 plt.show()
 
 # %% [markdown]
 """
-Survival by class
+hue is actually really powerful. It enables us to break things down by other variables 
 """
 
 # %%
-pclass = survivalFrame("Pclass", processedData).sort_index(axis=1)
-pclass.plot.bar()
+sns.countplot(x="Survived", hue="Sex", data=processedDataCategoricalSex)
 plt.show()
 
 # %% [markdown]
 """
-Survival by age
+### Survival by class
 """
 # %%
-survivalFrame("Age", processedData).sort_index(axis=1).transpose().plot.line()
+sns.countplot(x="Survived", hue="Pclass", data=processedDataCategoricalSex)
+plt.show()
+# %% [markdown]
+"""
+you can even break it down by multiple things, although it requires some work
+"""
+# %%
+sns.countplot(
+    x=processedDataCategoricalSex["Survived"],
+    hue=processedDataCategoricalSex[["Pclass", "Sex"]].apply(tuple, axis=1),
+)
 plt.show()
 
 # %% [markdown]
 """
-Survival of women by age
+### Survival by age
 """
-
 # %%
-survivalFrame("Age", processedData[processedData["Sex"] == 1]).sort_index(
-    axis=1
-).transpose().plot.line()
+sns.lineplot(x="Survived", y="Age", hue="Sex", data=processedDataCategoricalSex)
 plt.show()
 
 # %% [markdown]
 """
-Survival of men by age
+That's a horrible way to display the data and doesn't really tell us anything
 """
-
 # %%
-survivalFrame("Age", processedData[processedData["Sex"] == 0]).sort_index(
-    axis=1
-).transpose().plot.line()
+sns.boxplot(x="Survived", y="Age", hue="Sex", data=processedDataCategoricalSex)
 plt.show()
 
 # %% [markdown]
 """
-Survival of children by age
+you can even overlay plots, admittedy thisn't isn't the best representation...
 """
 
 # %%
-survivalFrame("Age", processedData[processedData["Age"] < 18]).sort_index(
-    axis=1
-).transpose().plot.line()
-plt.show()
-
-# %%
-survivalFrame("Age", processedData[processedData["Age"] < 18]).sort_index(
-    axis=1
-).transpose().plot.bar()
+sns.boxplot(x="Survived", y="Age", hue="Sex", data=processedDataCategoricalSex)
+sns.stripplot(x="Survived", y="Age", hue="Sex", data=processedDataCategoricalSex)
 plt.show()
 
 # %% [markdown]
 """
-Total survival of all children
+### Survival of women by age
 """
-
+# %% [markdown]
+"""
+You can create new plots that meet certain conditions by modifying your dataframe
+"""
 # %%
-survivalFrame("Age", processedData[processedData["Age"] < 18]).sort_index(
-    axis=1
-).transpose().sum().plot.bar()
+df = processedDataCategoricalSex[processedDataCategoricalSex["Sex"] == "female"]
+sns.countplot(x="Age", hue="Survived", data=df)
 plt.show()
-
-# %%
-survivalFrame("Age", processedData[processedData["Age"] < 18]).sort_index(
-    axis=1
-).transpose().sum()
 
 # %% [markdown]
 """
-The obvious conclusion is that being a child doesn't help your chancesa all that much
+That was unreadable, lets go back to the histogram
 """
+
+# %%
+df = processedDataCategoricalSex[processedDataCategoricalSex["Sex"] == "female"]
+sns.histplot(x="Age", hue="Survived", data=df)
+plt.show()
+
+# %% [markdown]
+"""
+### Survival of men by age
+"""
+
+# %%
+df = processedDataCategoricalSex[processedDataCategoricalSex["Sex"] == "male"]
+sns.histplot(x="Age", hue="Survived", data=df)
+plt.show()
+
+
+# %% [markdown]
+"""
+### Survival of children by age
+"""
+
+# %%
+df = processedDataCategoricalSex[processedDataCategoricalSex["Age"] < 18]
+sns.histplot(x=df["Age"], hue=df["Survived"])
+plt.show()
+
+# %% [markdown]
+"""
+The data isn't really displayed quite how we want it.  Things seem to be combined weirdly.  lets try a count plot
+"""
+
+# %%
+df = processedDataCategoricalSex[processedDataCategoricalSex["Age"] < 18]
+sns.countplot(
+    x=df["Age"],
+    hue=df["Survived"],
+)
+plt.show()
+
+# %% [markdown]
+"""
+No thats not right either, lets try modifying the histogram
+"""
+
+# %%
+df = processedDataCategoricalSex[processedDataCategoricalSex["Age"] < 18]
+sns.histplot(x=df["Age"], hue=df["Survived"], discrete=True)
+plt.show()
+
+# %% [markdown]
+"""
+The problem with looking at the children is that there simply isn't a lot of data.
+We can still calculate what your chance of surviving as a child is compared to adults
+"""
+# %%
+childDf = processedDataCategoricalSex[processedDataCategoricalSex["Age"] < 18]
+adultDf = processedDataCategoricalSex[processedDataCategoricalSex["Age"] >= 18]
+
+boyDf = childDf[childDf["Sex"] == "male"]
+girlDf = childDf[childDf["Sex"] == "female"]
+manDf = adultDf[adultDf["Sex"] == "male"]
+womanDf = adultDf[adultDf["Sex"] == "female"]
+survivalPercent = lambda df: df["Survived"].value_counts(normalize=True) * 100
+survivalDict = {
+    "childSurvive": survivalPercent(childDf),
+    "adultSurvive": survivalPercent(adultDf),
+    "boySurvive": survivalPercent(boyDf),
+    "girlSurvive": survivalPercent(girlDf),
+    "manSurvive": survivalPercent(manDf),
+    "womanSurvive": survivalPercent(womanDf),
+}
+survivalDict
 
 # %%
 data
@@ -241,7 +321,7 @@ processedData
 
 # %% [markdown]
 """
-## Machine learning
+# Machine learning
 """
 
 # %% [markdown]
