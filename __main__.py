@@ -3,6 +3,10 @@
 # Imports and library functions
 """
 # %%
+# %load_ext autoreload
+# %autoreload 2
+
+# %%
 from dataclasses import dataclass
 from functools import reduce
 
@@ -20,7 +24,7 @@ from ydata_profiling import ProfileReport
 
 from lib.chartSpecificData import survivalFrame
 from lib.clean import cleanAge, cleanEmbarked, cleanFare, dropIrrelevant
-from lib.featureEngineering import addFamilyCountData
+from lib.featureEngineering import addFamilyCountData, addIsAdult
 from lib.numericConversion import (SexConversion, embarkedConverter,
                                    sexConverter)
 
@@ -312,12 +316,6 @@ survivalDict = {
     "womanSurvive": survivalPercent(womanDf),
 }
 survivalDict
-
-# %%
-data
-
-# %%
-processedData
 
 # %% [markdown]
 """
