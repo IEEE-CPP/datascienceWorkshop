@@ -37,12 +37,6 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.tree import plot_tree
 from ydata_profiling import ProfileReport
 
-from lib.chartSpecificData import survivalFrame
-from lib.clean import cleanAge, cleanEmbarked, cleanFare, dropIrrelevant
-from lib.featureEngineering import addFamilyCountData, addIsAdult
-from lib.numericConversion import (SexConversion, embarkedConverter,
-                                   sexConverter)
-
 # %% [markdown]
 """
 ## Compose
