@@ -45,17 +45,6 @@ from lib.numericConversion import (SexConversion, embarkedConverter,
 
 # %% [markdown]
 """
-### matplotlib options
-
-This is just because my local setup is weird
-"""
-
-# %%
-matplotlib.use("ipympl")
-plt.ioff()
-
-# %% [markdown]
-"""
 ## Compose
 a function that enables functional composition
 compose :: function, function, ... -> function
@@ -127,13 +116,98 @@ data.isnull().sum()
 # %%
 # ProfileReport(data, title="Titanic Profiling Report")
 
-# CCXZX%% data Preprocessing [markdown]
+# %% data Preprocessing [markdown]
 """
 # Data Preprocessing
 
 Here we are just getting rid of null values and dropping irrelevant data that we don't need
 """
 
+# %%  [markdown]
+"""
+## Required libraries
+"""
+
+# %% [markdown]
+"""
+### Data cleaning
+"""
+
+# %%
+from functools import partial
+from typing import Callable, List
+
+from pandas import DataFrame
+
+
+def fillColumnNaWithMedian(data: DataFrame, columnName: str) -> DataFrame:
+    columnMedian = data[columnName].median()
+    return data.fillna(value={columnName: columnMedian})
+
+
+def fillColumnNaWithMode(data: DataFrame, columnName: str) -> DataFrame:
+    columnMode = data[columnName].mode()
+    return data.fillna(value={columnName: columnMode})
+
+
+def dataDropper(data: DataFrame, columns: List[str]):
+    return data.drop(columns, axis=1)
+
+
+cleanAge: Callable[[DataFrame], DataFrame] = partial(
+    fillColumnNaWithMedian, columnName="Age"
+)
+
+cleanEmbarked: Callable[[DataFrame], DataFrame] = partial(
+    fillColumnNaWithMode, columnName="Embarked"
+)
+
+cleanFare: Callable[[DataFrame], DataFrame] = partial(
+    fillColumnNaWithMedian, columnName="Fare"
+)
+
+dropIrrelevant: Callable[[DataFrame], DataFrame] = partial(
+    dataDropper, columns=["Name", "Ticket", "Cabin"]
+)
+
+# %% [markdown]
+"""
+### Numeric Conversion
+"""
+# %%
+
+from dataclasses import dataclass
+from functools import partial
+from typing import Callable
+
+from pandas import DataFrame
+
+
+@dataclass
+class NumericConversionData:
+    columnName: str
+    conversionMap: dict[str, int]
+
+
+def convertColToNumeric(
+    data: DataFrame, columnData: NumericConversionData
+) -> DataFrame:
+    convertedData = data.copy()
+    convertedData[columnData.columnName] = data[columnData.columnName].map(
+        columnData.conversionMap  # type: ignore
+    )
+    return convertedData
+
+
+SexConversion = NumericConversionData("Sex", {"male": 0, "female": 1})
+sexConverter: Callable[[DataFrame], DataFrame] = partial(
+    convertColToNumeric, columnData=SexConversion
+)
+
+EmbarkedConversion = NumericConversionData("Embarked", {"C": 0, "Q": 1, "S": 2})
+embarkedConverter: Callable[[DataFrame], DataFrame] = partial(
+    convertColToNumeric, columnData=EmbarkedConversion
+)
 # %%
 cleanData = compose(cleanAge, cleanFare, cleanEmbarked, dropIrrelevant)
 convertDataToNumeric = compose(sexConverter, embarkedConverter)
