@@ -1,3 +1,6 @@
+# shortened url to import
+# https://n9.cl/ieeedatascience2
+
 # %% Imports and libraries [markdown]
 """
 # Imports and library functions
