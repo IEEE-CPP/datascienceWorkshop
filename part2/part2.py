@@ -123,7 +123,7 @@ data.isnull().sum()
 Here we are just getting rid of null values and dropping irrelevant data that we don't need
 """
 
-# %%  [markdown]
+# %% [markdown]
 """
 ## Required libraries
 """
